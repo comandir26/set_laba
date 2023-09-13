@@ -25,7 +25,7 @@ add_library(set_template SHARED
 
 target_include_directories(set_template PUBLIC "include")
 
-# Объявляем тесты
+#Подключение main
 add_executable(main
     "src/main.cpp"
 )
