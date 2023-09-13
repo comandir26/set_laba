@@ -20,13 +20,12 @@ endif()
 # Объявляем библиотеку
 add_library(set_template SHARED
     "include/my_set/my_set.h"
-    "src/my_set.cpp"
+    "src/my_set.cc"
 )
 
 target_include_directories(set_template PUBLIC "include")
 
 #Подключение main
-add_executable(main
-    "src/main.cpp"
-)
+add_executable(main "src/main.cc")
+
 target_link_libraries(main set_template)
