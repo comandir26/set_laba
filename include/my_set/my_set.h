@@ -4,10 +4,26 @@ namespace my_set {
 	class MySet {
 	public:
 		MySet();
-		MySet(T* data, size_t size);
-		//MySet(int number, );
+
+		MySet(T* data, int size);
+
+		//MySet(int size, T begin, T end);
+
+		T& operator[](int index);
+		
+		const T operator[](int index) const;
+
+		//MySet operator+(const MySet& rhs);
+
+		int get_size() const {
+			return _size;
+		}
+
+		T* get_data() const {
+			return _data;
+		}
 	private:
 		T* _data;
-		size_t _size;
+		int _size;
 	};
 }
