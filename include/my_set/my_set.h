@@ -51,7 +51,7 @@ namespace my_set {
 			if (_size!= rhs.get_size()) return false;
 			for (int i = 0; i < _size; i++)
 			{
-				if (std::abs(_data[i] - rhs[i]) >= for_round) return false;
+				if (std::abs(_data[i] - rhs[i]) >= epsilon) return false;
 			}
 			return true;
 		}
@@ -195,6 +195,22 @@ namespace my_set {
 			_size--;
 		}
 
+		MySet get_all_repeats(T* data, int size) {
+			auto repeats = MySet<T>();
+			for (int i = 0; i < _size; i++)
+			{
+				int count = 0;
+				for (int j = 0; j < size; j++)
+				{
+					if (_data[i] == data[j]) ++count;
+				}
+				if (count > 1) {
+					repeats += _data[i];
+				}
+			}
+			return repeats;
+		}
+
 		~MySet() {
 			delete[] _data;
 			_size = 0;
@@ -239,12 +255,45 @@ namespace my_set {
 			}
 		}
 
-		inline static const double for_round = 0.001;
+		inline static const double epsilon = 0.001;
 
 		T* _data;
 
 		int _size;
 	};
+
+	template <> 
+	MySet<std::string>::MySet(int size, std::string begin, std::string end) : _size(size), _data(new std::string[size])
+	{
+		int asc_start = begin[0];
+		int asc_end = end[0];
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dis(asc_start, asc_end);
+		for (int i = 0; i < _size; i++)
+		{
+			char* word = new char[6]();
+			for (int j = 0; j < 5; j++)
+			{
+				word[j] = dis(gen);
+			}
+			word[6] = '\n';
+			_data[i] = std::string(word);
+		}
+	}
+
+	template <>
+	MySet<std::pair<int, double>>::MySet(int size, std::pair<int, double> begin, std::pair<int, double> end) : _size(size), _data(new std::pair<int, double>[size])
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<> dis_first(begin.first, end.first);
+		std::uniform_real_distribution<> dis_second(begin.second, end.second);
+		for (int i = 0; i < size; i++)
+		{
+			_data[i] = std::make_pair(dis_first(gen), dis_second(gen));
+		}
+	}
 
 	template<typename T, typename R>
 	MySet<T> operator+(const MySet<T>& lhs, const R& rhs) {
