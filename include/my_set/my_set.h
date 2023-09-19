@@ -1,4 +1,5 @@
 #pragma once
+#include<random>
 namespace my_set {
 	template<typename T>
 	class MySet {
@@ -17,32 +18,70 @@ namespace my_set {
 			delete new_size;
 		}
 
+		MySet(int size, const T begin, const T end) : _size(size), _data(new T[size]) {
+			std::random_device rd;
+			std::mt19937 gen(rd()); 
+			std::uniform_real_distribution<> dis(begin, end);
+			for (int i = 0; i < size; ++i) {
+				auto value = 0.0;
+				int index = 0;
+				while (index != -1) {
+					value = dis(gen);
+					index = element_is_there(_data, _size, value);
+				}
+				_data[i] = value;
+			}
+			this->sort();
+		}
+
 		MySet(const MySet& rhs) :_size(rhs.get_size()), _data(new T[rhs.get_size()]) {
-			for (int i = 0; i < _size; i++)
+			for (int i = 0; i < rhs.get_size(); i++)
 			{
 				_data[i] = rhs[i];
 			}
 		}
 
-		MySet<T> intersection(const MySet<T>& rhs) {
-			MySet copy(*this);
-			for (int i = 0; i < copy.get_size(); i++)
+		MySet& operator=(const MySet& rhs) {
+			MySet copy(rhs);
+			swap(copy);
+			return *this;
+		}
+
+		bool operator==(const MySet& rhs){
+			if (_size!= rhs.get_size()) return false;
+			for (int i = 0; i < _size; i++)
 			{
-				int index = element_is_there(copy.get_data(), copy.get_size(), rhs[i]);
-				if (index != -1) {
-					copy.remove(index);
-				}
+				if (std::abs(_data[i] - rhs[i]) >= for_round) return false;
 			}
-			return (*this - copy);
+			return true;
+		}
+
+		bool operator!=(const MySet& rhs){
+			return !(*this == rhs);
+		}
+
+		MySet<T> intersection(const MySet<T>& rhs) {
+			auto dif = *this - rhs;
+
+			return (*this - dif);
+		}
+
+		void swap(MySet<T>& rhs) noexcept{
+			std::swap(_data, rhs.get_data());
+			std::swap(_size, rhs.get_size());
 		}
 
 		T& operator[](int index) {
-			//Здесь проверка на правильный индекс
+			if (index < 0 || index >= _size) {
+				throw std::out_of_range("MySet::operator[], index is out of range");
+			}			
 			return _data[index];
 		}
 
-		const T operator[](int index) const {
-			//Здесь проверка на правильный индекс
+		const T& operator[](int index) const {
+			if (index < 0 || index >= _size) {
+				throw std::out_of_range("MySet::operator[] const, index is out of range");
+			}
 			return _data[index];
 		}
 
@@ -55,7 +94,9 @@ namespace my_set {
 			{
 				new_data[i] = _data[i];
 			}
+
 			int j = 0;
+
 			for (int i = _size; i < new_size; ++i)
 			{
 				new_data[i] = rhs[j];
@@ -117,16 +158,34 @@ namespace my_set {
 			return *this;
 		}
 
-		int get_size() const {
+		int find(const T& value) const {
+			for (int i = 0; i < _size; i++)
+			{
+				if (_data[i] == value) return i;
+			}
+			return -1;
+		}
+
+		int get_size() const{
 			return _size;
 		}
 
-		T* get_data() const {
+		int& get_size() {
+			return _size;
+		}
+
+		const T* get_data() const{
+			return _data;
+		}
+
+		T*& get_data(){
 			return _data;
 		}
 
 		void remove(int index) {
-			//проверка на правильный индекс
+			if (index < 0 || index >= _size) {
+				throw std::out_of_range("MySet::remove, index is out of range");
+			}
 			for (int i = index; i < _size - 1; i++)
 			{
 				T temp = _data[i];
@@ -143,7 +202,7 @@ namespace my_set {
 
 	private:
 		int element_is_there(T* data, int size, const T& value) {
-			for (size_t i = 0; i < size; i++)
+			for (int i = 0; i < size; i++)
 			{
 				if (data[i] == value) return i;
 			}
@@ -180,8 +239,39 @@ namespace my_set {
 			}
 		}
 
+		inline static const double for_round = 0.001;
+
 		T* _data;
 
 		int _size;
-	};	
+	};
+
+	template<typename T, typename R>
+	MySet<T> operator+(const MySet<T>& lhs, const R& rhs) {
+		MySet copy(lhs);
+		return copy += rhs;
+	}
+
+	template<typename T, typename R>
+	MySet<T> operator-(const MySet<T>& lhs, const R& rhs) {
+		MySet copy(lhs);
+		return copy -= rhs;
+	}
+
+	template<typename T, typename R>
+	std::ostream& operator<<(std::ostream& os, std::pair<T, R>& pair) {
+		std::cout << "(" << pair.first << ", " << pair.second << ")";
+		return os;
+	}
+
+	template<typename T>
+	std::ostream& operator<<(std::ostream& os, MySet<T>& set) {
+		for (size_t i = 0; i < set.get_size(); i++)
+		{
+			std::cout << set[i] << " ";
+			if (i == 9) std::cout << "\n";
+		}
+		std::cout << '\n';
+		return os;
+	}
 }
