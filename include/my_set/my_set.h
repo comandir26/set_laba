@@ -127,7 +127,7 @@ namespace my_set {
 					this->remove(index);
 				}
 			}
-			this->sort();
+			///this->sort();
 			return *this;
 		}
 
@@ -209,6 +209,17 @@ namespace my_set {
 				}
 			}
 			return repeats;
+		}
+
+		template<typename R>
+		MySet operator+(const R& rhs) {
+			MySet copy(*this);
+			return copy += rhs;
+		}
+		template<typename R>
+		MySet operator-(const R& rhs) {
+			MySet copy(*this);
+			return copy -= rhs;
 		}
 
 		~MySet() {
@@ -296,18 +307,6 @@ namespace my_set {
 	}
 
 	template<typename T, typename R>
-	MySet<T> operator+(const MySet<T>& lhs, const R& rhs) {
-		MySet copy(lhs);
-		return copy += rhs;
-	}
-
-	template<typename T, typename R>
-	MySet<T> operator-(const MySet<T>& lhs, const R& rhs) {
-		MySet copy(lhs);
-		return copy -= rhs;
-	}
-
-	template<typename T, typename R>
 	std::ostream& operator<<(std::ostream& os, std::pair<T, R>& pair) {
 		std::cout << "(" << pair.first << ", " << pair.second << ")";
 		return os;
@@ -320,7 +319,6 @@ namespace my_set {
 			std::cout << set[i] << " ";
 			if (i == 9) std::cout << "\n";
 		}
-		std::cout << '\n';
 		return os;
 	}
 }
